@@ -49,6 +49,13 @@ def registerPlayer(name):
     c = conn.cursor()
     c.execute("insert into players values(%s)", (name,))
     conn.commit()
+    n = countPlayers()
+    if(n % 2 == 0):
+        while( i in n ):
+            
+        sql = "insert into matches values()"
+        c.execute(sql)
+        conn.commit()
     conn.close()
 
 def playerStandings():
