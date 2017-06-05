@@ -32,7 +32,8 @@ def countPlayers():
     conn = connect()
     c = conn.cursor()
     c.execute("select count(*) from players;")
-    num = c.fetchall()
+    num = c.fetchone()
+    num = num[0]
     conn.close()
     return(num)
 
@@ -47,15 +48,19 @@ def registerPlayer(name):
     """
     conn = connect()
     c = conn.cursor()
-    c.execute("insert into players values(%s)", (name,))
+    c.execute("insert into players(name) values(%s)", (name,))
     conn.commit()
     n = countPlayers()
+    c.execute("select max(id) from matches")
+    curmatch = c.fetchone()[0]
     if(n % 2 == 0):
-        while( i in n ):
-            
-        sql = "insert into matches values()"
-        c.execute(sql)
-        conn.commit()
+        i = 0
+        c.execute("select id from players")
+        players = c.fetchall()
+        while( i < n ):
+            c.execute("insert into matches(id,p1,p2) values(%s , %s)",(curmatch+1,players[i][0],players[i+1][0],))
+            conn.commit()
+            i = i + 2
     conn.close()
 
 def playerStandings():
@@ -71,6 +76,12 @@ def playerStandings():
         wins: the number of matches the player has won
         matches: the number of matches the player has played
     """
+    conn = connect()
+    c = conn.cursor()
+    c.execute("select * from playerstanding")
+    res = c.fetchall()
+    conn.close()
+    return(res)
 
 
 def reportMatch(winner, loser):
@@ -80,8 +91,14 @@ def reportMatch(winner, loser):
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
     """
- 
- 
+    conn = connect()
+    c = conn.cursor()
+    c.execute("update matches set win = %s where p1 = %s or p2 = %s",(winner,winner,winner,))
+    c.execute("update matches set lose = %s where p1 = %s or p2 = %s",(loser,loser,loser,))
+    c.commit()
+    conn.close()
+
+    
 def swissPairings():
     """Returns a list of pairs of players for the next round of a match.
   
@@ -97,3 +114,21 @@ def swissPairings():
         id2: the second player's unique id
         name2: the second player's name
     """
+    conn = connect()
+    c = conn.cursor()
+    n = countPlayers()
+    c.execute("select max(id) from matches")
+    curmatch = c.fetchone()[0]
+    if(n % 2 == 0):
+        i = 0
+        c.execute("select player as id from playerstanding")
+        players = c.fetchall()
+        while( i < n ):
+            c.execute("insert into matches(id,p1,p2) values(%s , %s)",(curmatch+1,players[i][0],players[i+1][0],))
+            conn.commit()
+            i = i + 2
+    c.execute("select * from swisspairing;")
+    res = c.fectchall()
+    conn.close()
+    return(res)
+    
