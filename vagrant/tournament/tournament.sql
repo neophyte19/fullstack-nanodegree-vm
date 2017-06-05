@@ -6,11 +6,12 @@
 -- You can write comments in this file by starting them with two dashes, like
 -- these lines here.
 
+--DROP DATABASE IF EXISTS tournament;
 --CREATE DATABASE tournament;
 \c tournament;
 
-DROP TABLE IF EXISTS players cascade;
 DROP TABLE IF EXISTS matches cascade;
+DROP TABLE IF EXISTS players cascade;
 
 CREATE TABLE players(id serial primary key, name text);
 
@@ -23,11 +24,12 @@ CREATE TABLE matches(id integer,
                      
 CREATE OR REPLACE VIEW swissPairing as 
 select p1 as id1 , pl1.name as name1, p2 as id2, pl2.name as name2 
-from matches m where id = (select max(id) from matches)
+from matches m
 join players pl1 
 on m.p1 = pl1.id 
 join players pl2 
-on m.p2 = pl2.id;                     
+on m.p2 = pl2.id 
+where m.id = (select max(id) from matches);   
 
 CREATE OR REPLACE VIEW playerstanding as 
 select player ,name, sum(winlose) wins, case when sum(winlose)=0 then 0 else count(*) end as matches 
