@@ -6,22 +6,22 @@
 -- You can write comments in this file by starting them with two dashes, like
 -- these lines here.
 
-CREATE DATABASE tournament;
+--CREATE DATABASE tournament;
 \c tournament;
 
-DROP TABLE IF EXISTS players;
-DROP TABLE IF EXISTS matches;
+DROP TABLE IF EXISTS players cascade;
+DROP TABLE IF EXISTS matches cascade;
 
 CREATE TABLE players(id serial primary key, name text);
 
 CREATE TABLE matches(id integer, 
-                     p1 integer references players(ID), 
-                     p2 integer references players(ID), 
-                     win integer references players(ID),
-                     lose integer references players(ID), 
+                     p1 integer references players(ID) on delete cascade, 
+                     p2 integer references players(ID) on delete cascade, 
+                     win integer references players(ID) on delete cascade,
+                     lose integer references players(ID) on delete cascade, 
                      primary key(id,p1,p2));
                      
-CREATE VIEW swissPairing as 
+CREATE OR REPLACE VIEW swissPairing as 
 select p1 as id1 , pl1.name as name1, p2 as id2, pl2.name as name2 
 from matches m where id = (select max(id) from matches)
 join players pl1 
@@ -29,8 +29,8 @@ on m.p1 = pl1.id
 join players pl2 
 on m.p2 = pl2.id;                     
 
-CREATE VIEW playerstanding as 
-select player ,name, sum(winlose) wins, count(*) as matches 
+CREATE OR REPLACE VIEW playerstanding as 
+select player ,name, sum(winlose) wins, case when sum(winlose)=0 then 0 else count(*) end as matches 
 from
 (select id as matchid, p1 as player, case when p1=win then 1 else 0 end winlose from matches 
 union
