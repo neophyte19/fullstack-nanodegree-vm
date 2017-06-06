@@ -41,6 +41,6 @@ select id as matchid, p2 as player, case when p2=win then 1 else 0 end win,case 
 join players 
 on a.player = players.id
 group by player,name 
-order by wins desc;
+order by wins desc,player asc;
 
 
