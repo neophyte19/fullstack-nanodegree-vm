@@ -73,14 +73,17 @@ def playerStandings():
     curmatch = curmatch[0]
     if(n % 2 == 0):
         i = 0
-        c.execute("select id from players")
-        players = c.fetchall()
         if curmatch is None:
-	        curmatch = 1
+            curmatch = 1
+            c.execute("select id from players")
+            players = c.fetchall()
+        else:
+            c.execute("select player from playerstanding")
+            players = c.fetchall()
         while( i < n ):
-            c.execute("insert into matches(id,p1,p2) values(%s , %s)",(curmatch,players[i][0],players[i+1][0],))
-            conn.commit()
-            i = i + 2
+                c.execute("insert into matches(id,p1,p2) values(%s, %s , %s)",(curmatch,players[i][0],players[i+1][0],))
+                conn.commit()
+                i = i + 2 
     c.execute("select * from playerstanding")
     res = c.fetchall()
     conn.close()
@@ -98,7 +101,7 @@ def reportMatch(winner, loser):
     c = conn.cursor()
     c.execute("update matches set win = %s where p1 = %s or p2 = %s",(winner,winner,winner,))
     c.execute("update matches set lose = %s where p1 = %s or p2 = %s",(loser,loser,loser,))
-    c.commit()
+    conn.commit()
     conn.close()
 
     
@@ -130,11 +133,11 @@ def swissPairings():
         if curmatch is None:
 	        curmatch = 1
         while( i < n ):
-            c.execute("insert into matches(id,p1,p2) values(%s , %s)",(curmatch,players[i][0],players[i+1][0],))
+            c.execute("insert into matches(id,p1,p2) values(%s, %s , %s)",(curmatch,players[i][0],players[i+1][0],))
             conn.commit()
             i = i + 2
     c.execute("select * from swisspairing;")
-    res = c.fectchall()
+    res = c.fetchall()
     conn.close()
     return(res)
     
