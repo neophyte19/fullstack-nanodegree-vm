@@ -32,13 +32,15 @@ on m.p2 = pl2.id
 where m.id = (select max(id) from matches);   
 
 CREATE OR REPLACE VIEW playerstanding as 
-select player ,name, sum(winlose) wins, case when sum(winlose)=0 then 0 else count(*) end as matches 
+select player ,name, sum(win) wins, (max(matchid))-1 as matches 
 from
-(select id as matchid, p1 as player, case when p1=win then 1 else 0 end winlose from matches 
+(select id as matchid, p1 as player, case when p1=win then 1 else 0 end win,case when p1=lose then 1 else 0 end lose from matches 
 union
-select id as matchid, p2 as player, case when p1=win then 1 else 0 end winlose from matches
+select id as matchid, p2 as player, case when p2=win then 1 else 0 end win,case when p2=lose then 1 else 0 end lose  from matches
 ) a 
 join players 
 on a.player = players.id
 group by player,name 
 order by wins desc;
+
+
