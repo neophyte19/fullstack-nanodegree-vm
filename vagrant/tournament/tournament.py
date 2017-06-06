@@ -100,6 +100,7 @@ def reportMatch(winner, loser):
     conn = connect()
     c = conn.cursor()
     c.execute("update matches set win = %s where p1 = %s or p2 = %s",(winner,winner,winner,))
+    conn.commit()
     c.execute("update matches set lose = %s where p1 = %s or p2 = %s",(loser,loser,loser,))
     conn.commit()
     conn.close()
